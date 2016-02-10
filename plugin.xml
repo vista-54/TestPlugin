@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        id="com.aaw.bmplugin"
+        version="0.7.5">
+
+    <name>BeaconsManagerPlugin</name>
+
+    <description>Test Plugin</description>
+    <repo></repo>
+    <keywords></keywords>
+    <license>Apache 2.0</license>
+
+    <author>AAW</author>
+
+    <engines>
+        <engine name="cordova" version=">=3.0.0"/>
+    </engines>
+
+    <!-- -->
+    <dependency id="cordova-plugin-device" url="https://github.com/apache/cordova-plugin-device"/>
+
+
+    <js-module src="www/beacons-manager.js" name="BeaconsManagerPlugin">
+        <clobbers target="plugin.BeaconsManagerPlugin"/>
+    </js-module>
+
+    <!-- ios -->
+    <platform name="ios">
+        <config-file target="config.xml" parent="/*">
+            <feature name="BeaconsManagerPlugin">
+                <param name="ios-package" value="BeaconsManagerPlugin"/>
+                <param name="onload" value="true"/>
+            </feature>
+        </config-file>
+
+
+        <config-file target="*-Info.plist" parent="NSLocationAlwaysUsageDescription">
+            <string>This app requires background location tracking</string>
+        </config-file>
+
+        <config-file target="*-Info.plist" parent="UIBackgroundModes">
+            <array>
+                <string>location</string>
+                <string>bluetooth-central</string>
+                <string>remote-notification</string>
+            </array>
+        </config-file>
+
+        <header-file src="src/ios/ExtBeacon.h"/>
+
+        <header-file src="src/ios/BeaconsManager.h"/>
+        <source-file src="src/ios/BeaconsManager.m"/>
+
+        <header-file src="src/ios/AppDelegate+CLLocationManager.h"/>
+        <source-file src="src/ios/AppDelegate+CLLocationManager.m"/>
+
+        <framework src="CoreBluetooth.framework"/>
+        <framework src="CoreLocation.framework"/>
+
+    </platform>
+
+    <!-- android -->
+    <platform name="android">
+
+        <hook type="after_prepare" src="hooks/android_set_app_name.js"/>
+
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="BeaconsManagerPlugin">
+                <param name="android-package" value="com.aaw.beaconsmanager.BeaconsManagerPlugin"/>
+                <param name="onload" value="false"/>
+            </feature>
+        </config-file>
+
+        <!--
+        <config-file platform="android" target="AndroidManifest.xml" parent="/manifest" mode="merge">
+            <application android:hardwareAccelerated="true" android:icon="@drawable/icon" android:label="@string/app_name" android:supportsRtl="true"
+            android:name="com.aaw.beaconsmanager.MainApplication" />
+        </config-file>
+        -->
+
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <receiver android:name="org.altbeacon.beacon.startup.StartupBroadcastReceiver">
+                <intent-filter>
+                    <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                    <action android:name="android.intent.action.ACTION_POWER_CONNECTED"/>
+                    <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"/>
+                </intent-filter>
+            </receiver>
+            <service android:enabled="true"
+                     android:exported="true"
+                     android:isolatedProcess="false"
+                     android:label="iBeacon"
+                     android:name="org.altbeacon.beacon.service.BeaconService">
+            </service>
+            <service android:enabled="true"
+                     android:name="org.altbeacon.beacon.BeaconIntentProcessor">
+                <meta-data android:name="background" android:value="true"/>
+                <intent-filter android:priority="1">
+                    <action android:name="com.unarin.cordova.beacon.IBeaconPlugin.DID_RANGING"/>
+                    <action android:name="com.unarin.cordova.beacon.IBeaconPlugin.DID_MONITORING"/>
+                </intent-filter>
+            </service>
+
+
+            <service android:name="com.aaw.beaconsmanager.AltMonitoring"
+                     android:enabled="true"
+                     android:exported="true"
+                     android:isolatedProcess="false"
+            >
+                <meta-data
+                        android:name="background"
+                        android:value="true"/>
+                <!--<intent-filter android:priority="1" >-->
+                <!--&lt;!&ndash;<action android:name="com.aaw.beaconsmanager.AltMonitoring" />&ndash;&gt;-->
+                <!--&lt;!&ndash;<action android:name="android.intent.action.MAIN" />&ndash;&gt;-->
+                <!--&lt;!&ndash;<category android:name="android.intent.category.LAUNCHER" />&ndash;&gt;-->
+                <!--</intent-filter>-->
+            </service>
+			
+			 <receiver android:name="org.altbeacon.beacon.startup.StartupBroadcastReceiver">
+				<intent-filter>
+					<action android:name="android.intent.action.BOOT_COMPLETED"/>
+					<action android:name="android.intent.action.ACTION_POWER_CONNECTED"/>
+					<action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"/>
+				</intent-filter>
+			</receiver>
+
+			<receiver android:name="com.aaw.beaconsmanager.StartupMonitoringReceiver">
+				<intent-filter>
+					<action android:name="android.intent.action.BOOT_COMPLETED"/>
+					<action android:name="android.intent.action.ACTION_POWER_CONNECTED"/>
+					<action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"/>
+				</intent-filter>
+			</receiver>
+			
+
+        </config-file>
+
+
+        <config-file target="AndroidManifest.xml" parent="/manifest">
+
+            <uses-permission android:name="android.permission.BLUETOOTH"/>
+            <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+            <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+            <uses-permission-sdk-23 android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
+        </config-file>
+
+
+        <source-file src="src/android/com/aaw/beaconsmanager/AltMonitoring.java"
+                     target-dir="src/com/aaw/beaconsmanager"/>
+        <source-file src="src/android/com/aaw/beaconsmanager/BeaconsManagerPlugin.java"
+                     target-dir="src/com/aaw/beaconsmanager"/>
+        <source-file src="src/android/com/aaw/beaconsmanager/ExtBeacon.java" 
+					 target-dir="src/com/aaw/beaconsmanager"/>
+        <source-file src="src/android/com/aaw/beaconsmanager/MainApplication.java"
+                     target-dir="src/com/aaw/beaconsmanager"/>
+        <source-file src="src/android/com/aaw/beaconsmanager/BeaconsUtils.java" 
+					 target-dir="src/com/aaw/beaconsmanager"/>
+		<source-file src="src/android/com/aaw/beaconsmanager/StartupMonitoringReceiver.java" 
+					 target-dir="src/com/aaw/beaconsmanager"/>
+        
+        <source-file src="src/android/libs/altbeacon.jar" target-dir="libs" framework="true" />
+        
+        <source-file src="src/android/libs/android-support-v4.jar" target-dir="libs" framework="true"/>
+
+        <!--
+        <framework src="com.android.support:support-v4:+" />
+        -->
+
+
+    </platform>
+
+
+</plugin>

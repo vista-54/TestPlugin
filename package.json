@@ -1,0 +1,24 @@
+{
+  "name": "bmcp",
+  "version": "0.2.6",
+  "description": "beta beacons cordova plugin - temp for old altbeacon library",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chuwak/bmPlugin.git"
+  },
+  "keywords": [
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova-ios"
+  ],
+  "author": "grigoriy",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chuwak/bmPlugin/issues"
+  },
+  "homepage": "https://github.com/chuwak/bmPlugin#readme"
+}
